@@ -11,9 +11,9 @@ for (let i = 0; i < 46; i += 1) {
       'https://gw.alipayobjects.com/zos/rmsportal/eeHMaZBwmTvLdIwMfBpg.png',
       'https://gw.alipayobjects.com/zos/rmsportal/udxAbMEhpwthVVcjLXik.png',
     ][i % 2],
-    no: `TradeCode ${i}`,
+    no: `#TradeCode ${i}`,
     title: `一个任务名称 ${i}`,
-    owner: '曲丽丽',
+    owner: '曲丽丽*',
     description: '这是一段描述',
     callNo: Math.floor(Math.random() * 1000),
     status: Math.floor(Math.random() * 10) % 4,
@@ -28,9 +28,8 @@ export function getRule(req, res, u) {
   if (!url || Object.prototype.toString.call(url) !== '[object String]') {
     url = req.url; // eslint-disable-line
   }
-
+  
   const params = parse(url, true).query;
-
   let dataSource = [...tableListDataSource];
 
   if (params.sorter) {

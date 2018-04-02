@@ -2,6 +2,27 @@ import { isUrl } from '../utils/utils';
 
 const menuData = [
   {
+    name: '新建页面',
+    icon: 'like',
+    path: 'newpage',
+    children: [
+      {
+        name: '用户管理',
+        path: 'user-manage',
+      },
+      // {
+      //   name: '监控页',
+      //   path: 'monitor',
+      // },
+      // {
+      //   name: '工作台',
+      //   path: 'workplace',
+      //   // hideInBreadcrumb: true,
+      //   // hideInMenu: true,
+      // },
+    ],
+  },
+  {
     name: 'dashboard',
     icon: 'dashboard',
     path: 'dashboard',

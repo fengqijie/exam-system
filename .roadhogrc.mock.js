@@ -137,4 +137,9 @@ const proxy = {
   },
 };
 
-export default (noProxy ? {} : delay(proxy, 1000));
+// 将请求从 mock 数据切换到真实服务器
+const server = {
+  // 'GET /api/rule': 'http://140.143.158.68:8000'
+}
+
+export default (noProxy ? {} : delay(Object.assign(proxy, server), 100));
