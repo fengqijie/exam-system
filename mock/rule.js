@@ -28,7 +28,7 @@ export function getRule(req, res, u) {
   if (!url || Object.prototype.toString.call(url) !== '[object String]') {
     url = req.url; // eslint-disable-line
   }
-  
+
   const params = parse(url, true).query;
   let dataSource = [...tableListDataSource];
 

@@ -24,7 +24,7 @@ import {
 import StandardTable from 'components/StandardTable';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 
-import AddUser from './AddUser'
+import AddUser from './AddUser';
 
 const WrappedRegistrationForm = Form.create()(AddUser);
 
@@ -89,19 +89,19 @@ const columns = [
   },
   {
     title: '岗位',
-    dataIndex: 'title'
+    dataIndex: 'title',
   },
   {
     title: '岗位兼职',
-    dataIndex: 'description'
+    dataIndex: 'description',
   },
   {
     title: '联系电话',
-    dataIndex: 'href'
+    dataIndex: 'href',
   },
   {
     title: '所属组织',
-    dataIndex: 'callNo'
+    dataIndex: 'callNo',
   },
   {
     title: '照片',
@@ -109,7 +109,7 @@ const columns = [
       <Fragment>
         <a href="{{avatar}}">avatar</a>
       </Fragment>
-    )
+    ),
   },
   {
     title: '操作',
@@ -290,7 +290,7 @@ export default class TableList extends PureComponent {
 
   handleDownloadTemplate = () => {
     message.info('下载 execl 模板');
-  }
+  };
 
   handleAdd = fields => {
     this.props.dispatch({
@@ -384,7 +384,7 @@ export default class TableList extends PureComponent {
           {/* <Col md={2} sm={24} style={{'text-align': 'right'}}>
             组织名称
           </Col> */}
-          <span style={{'float': 'left', 'line-height': '32px'}}>组织名称：</span>
+          <span style={{ float: 'left', 'line-height': '32px' }}>组织名称：</span>
           <Col md={10} sm={24}>
             <TreeSelect {...tProps} />
           </Col>
@@ -429,12 +429,16 @@ export default class TableList extends PureComponent {
                 新增
               </Button>
               <div className="">
-                <Upload {...uploadProps} >
-                  <Button  type="primary">
+                <Upload {...uploadProps}>
+                  <Button type="primary">
                     <Icon type="upload" /> 批量导入用户信息
                   </Button>
                 </Upload>
-                <Button icon="download" type="primary" onClick={() => this.handleDownloadTemplate()}>
+                <Button
+                  icon="download"
+                  type="primary"
+                  onClick={() => this.handleDownloadTemplate()}
+                >
                   execl 模板下载
                 </Button>
               </div>
