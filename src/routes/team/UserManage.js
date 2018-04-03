@@ -342,7 +342,7 @@ export default class TableList extends PureComponent {
     );
   }
 
-  render() {
+  render () {
     const { rule: { data }, loading } = this.props;
     const { selectedRows, modalVisible } = this.state;
 

@@ -29,7 +29,7 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 
 import styles from './RoleManage.less';
 
-
+import MainTreeSelect from './MainTreeSelect';
 // const data = [
 //   {key: 1, job: 1, remark: '一些备注'},
 //   {key: 2, job: 2, remark: '一些备注'},
@@ -55,10 +55,6 @@ const EditableCell = ({ editable, value, onChange }) => (
 @Form.create()
 export default class TableList extends PureComponent {
   state = {
-    isLoadTreeData: true,
-    selectedRowData: {},
-    value: [],
-    treeData: [],
     data: [
       {key: 1, job: 1, remark: '一些备注'},
       {key: 2, job: 2, remark: '一些备注'},
@@ -67,7 +63,6 @@ export default class TableList extends PureComponent {
       {key: 5, job: 5, remark: '一些备注'},
       {key: 6, job: 6, remark: '一些备注'},
     ],
-    deleteModalVisible: false,
   };
 
   componentDidMount() {
@@ -75,7 +70,7 @@ export default class TableList extends PureComponent {
     dispatch({
       type: 'rule/fetch',
     });
-  }
+  } 
 
   handleTreeSelectChange = value => {
     this.setState({ value });
@@ -118,6 +113,7 @@ export default class TableList extends PureComponent {
       </Form>
     );
   }
+
   columns = [{
     title: '职位',
     dataIndex: 'job',
@@ -169,6 +165,7 @@ export default class TableList extends PureComponent {
       />
     );
   }
+
   handleChange(value, key, column) {
     const newData = [...this.state.data];
     const target = newData.filter(item => key === item.key)[0];
@@ -213,9 +210,23 @@ export default class TableList extends PureComponent {
     }
   }
 
+  handleTreeSelectChange(value) {
+    console.log(value);
+  }
+
   render() {
+    const tProps = {
+      treeData: [],
+      value: [],
+      onChange: this.handleTreeSelectChange,
+    };
+    const mainSearch = (
+      <div style={{ textAlign: 'center' }}>
+        <MainTreeSelect {...tProps}/>
+      </div>
+    );
     return (
-      <PageHeaderLayout title="角色管理" content={this.renderForm()}>
+      <PageHeaderLayout title="角色管理" content={mainSearch}>
         <Card bordered={false}>
           <Table bordered dataSource={this.state.data} columns={this.columns} />
         </Card>
