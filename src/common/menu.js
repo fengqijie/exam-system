@@ -2,24 +2,28 @@ import { isUrl } from '../utils/utils';
 
 const menuData = [
   {
-    name: '新建页面',
-    icon: 'like',
-    path: 'newpage',
+    name: '组织结构',
+    icon: 'team',
+    path: 'team',
     children: [
       {
         name: '用户管理',
         path: 'user-manage',
       },
       // {
-      //   name: '监控页',
-      //   path: 'monitor',
+      //   name: '新增用户',
+      //   path: 'user-add',
       // },
-      // {
-      //   name: '工作台',
-      //   path: 'workplace',
-      //   // hideInBreadcrumb: true,
-      //   // hideInMenu: true,
-      // },
+      {
+        name: '角色管理',
+        path: 'role-manage',
+      },
+      {
+        name: '组织结构管理',
+        path: 'team-manage',
+        // hideInBreadcrumb: true,
+        // hideInMenu: true,
+      },
     ],
   },
   {

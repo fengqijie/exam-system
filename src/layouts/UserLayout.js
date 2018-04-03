@@ -35,9 +35,9 @@ class UserLayout extends React.PureComponent {
   getPageTitle() {
     const { routerData, location } = this.props;
     const { pathname } = location;
-    let title = 'Ant Design Pro';
+    let title = '考试系统';
     if (routerData[pathname] && routerData[pathname].name) {
-      title = `${routerData[pathname].name} - Ant Design Pro`;
+      title = `${routerData[pathname].name} - 考试系统`;
     }
     return title;
   }
@@ -51,7 +51,7 @@ class UserLayout extends React.PureComponent {
               <div className={styles.header}>
                 <Link to="/">
                   <img alt="logo" className={styles.logo} src={logo} />
-                  <span className={styles.title}>Ant Design</span>
+                  <span className={styles.title}>考试系统</span>
                 </Link>
               </div>
               <div className={styles.desc}>Ant Design 是西湖区最具影响力的 Web 设计规范</div>

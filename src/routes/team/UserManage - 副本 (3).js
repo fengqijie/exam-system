@@ -13,7 +13,6 @@ import {
   Button,
   TreeSelect,
   Dropdown,
-  Menu,
   InputNumber,
   DatePicker,
   Modal,
@@ -24,11 +23,11 @@ import {
 import StandardTable from 'components/StandardTable';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 
-import AddUser from './AddUser';
+import AddUser from './UserAdd';
 
 const WrappedRegistrationForm = Form.create()(AddUser);
 
-import styles from './TableList.less';
+import styles from './UserManage.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -50,36 +49,10 @@ const columns = [
   {
     title: '登陆账号',
     dataIndex: 'no',
-    sorter: true,
-    align: 'right',
-    render: val => `${val} 万`,
-    // mark to display a total number
-    needTotal: true,
   },
   {
     title: '身份证号',
-    dataIndex: 'status',
-    filters: [
-      {
-        text: status[0],
-        value: 0,
-      },
-      {
-        text: status[1],
-        value: 1,
-      },
-      {
-        text: status[2],
-        value: 2,
-      },
-      {
-        text: status[3],
-        value: 3,
-      },
-    ],
-    render(val) {
-      return <Badge status={statusMap[val]} text={status[val]} />;
-    },
+    dataIndex: 'status'
   },
   {
     title: '工号',
@@ -171,149 +144,11 @@ export default class TableList extends PureComponent {
   state = {
     modalVisible: false,
     expandForm: false,
+    isLoadTreeData: true,
     selectedRows: [],
     formValues: {},
     value: [],
-  };
-
-  componentDidMount() {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'rule/fetch',
-    });
-  }
-
-  handleStandardTableChange = (pagination, filtersArg, sorter) => {
-    const { dispatch } = this.props;
-    const { formValues } = this.state;
-
-    const filters = Object.keys(filtersArg).reduce((obj, key) => {
-      const newObj = { ...obj };
-      newObj[key] = getValue(filtersArg[key]);
-      return newObj;
-    }, {});
-
-    const params = {
-      currentPage: pagination.current,
-      pageSize: pagination.pageSize,
-      ...formValues,
-      ...filters,
-    };
-    if (sorter.field) {
-      params.sorter = `${sorter.field}_${sorter.order}`;
-    }
-
-    dispatch({
-      type: 'rule/fetch',
-      payload: params,
-    });
-  };
-
-  handleFormReset = () => {
-    const { form, dispatch } = this.props;
-    form.resetFields();
-    this.setState({
-      formValues: {},
-    });
-    dispatch({
-      type: 'rule/fetch',
-      payload: {},
-    });
-  };
-
-  toggleForm = () => {
-    this.setState({
-      expandForm: !this.state.expandForm,
-    });
-  };
-
-  handleMenuClick = e => {
-    const { dispatch } = this.props;
-    const { selectedRows } = this.state;
-
-    if (!selectedRows) return;
-
-    switch (e.key) {
-      case 'remove':
-        dispatch({
-          type: 'rule/remove',
-          payload: {
-            no: selectedRows.map(row => row.no).join(','),
-          },
-          callback: () => {
-            this.setState({
-              selectedRows: [],
-            });
-          },
-        });
-        break;
-      default:
-        break;
-    }
-  };
-
-  handleSelectRows = rows => {
-    this.setState({
-      selectedRows: rows,
-    });
-  };
-
-  handleSearch = e => {
-    e.preventDefault();
-
-    const { dispatch, form } = this.props;
-
-    form.validateFields((err, fieldsValue) => {
-      if (err) return;
-
-      const values = {
-        ...fieldsValue,
-        updatedAt: fieldsValue.updatedAt && fieldsValue.updatedAt.valueOf(),
-      };
-
-      this.setState({
-        formValues: values,
-      });
-
-      dispatch({
-        type: 'rule/fetch',
-        payload: values,
-      });
-    });
-  };
-
-  handleModalVisible = flag => {
-    this.setState({
-      modalVisible: !!flag,
-    });
-  };
-
-  handleDownloadTemplate = () => {
-    message.info('下载 execl 模板');
-  };
-
-  handleAdd = fields => {
-    this.props.dispatch({
-      type: 'rule/add',
-      payload: {
-        description: fields.desc,
-      },
-    });
-
-    message.success('添加成功');
-    this.setState({
-      modalVisible: false,
-    });
-  };
-
-  onTreeSelectChange = value => {
-    console.log('onChange ', value, arguments);
-    this.setState({ value });
-  };
-
-  renderForm() {
-    const { getFieldDecorator } = this.props.form;
-    const treeData = [
+    treeData: [
       {
         label: 'Node1',
         value: '0-0',
@@ -368,9 +203,100 @@ export default class TableList extends PureComponent {
           },
         ],
       },
-    ];
+    ],
+  };
+
+  componentDidMount() {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'rule/fetch',
+    });
+  }
+
+  handleStandardTableChange = (pagination, filtersArg, sorter) => {
+    const { dispatch } = this.props;
+    const { formValues } = this.state;
+
+    const filters = Object.keys(filtersArg).reduce((obj, key) => {
+      const newObj = { ...obj };
+      newObj[key] = getValue(filtersArg[key]);
+      return newObj;
+    }, {});
+
+    const params = {
+      currentPage: pagination.current,
+      pageSize: pagination.pageSize,
+      ...formValues,
+      ...filters,
+    };
+    if (sorter.field) {
+      params.sorter = `${sorter.field}_${sorter.order}`;
+    }
+
+    dispatch({
+      type: 'rule/fetch',
+      payload: params,
+    });
+  };
+
+  handleFormReset = () => {
+    const { form, dispatch } = this.props;
+    form.resetFields();
+    this.setState({
+      formValues: {},
+    });
+    dispatch({
+      type: 'rule/fetch',
+      payload: {},
+    });
+  };
+
+  handleSelectRows = rows => {
+    this.setState({
+      selectedRows: rows,
+    });
+  };
+  
+  onTreeSelectChange = value => {
+    this.setState({ value });
+  };
+
+  handleSearch = e => {
+    e.preventDefault();
+    console.log(this.state.value)
+  };
+
+  handleModalVisible = flag => {
+    this.setState({
+      modalVisible: !!flag,
+    });
+  };
+
+  handleDownloadTemplate = () => {
+    message.info('下载 execl 模板');
+  };
+
+  handleAdd = fields => {
+    this.props.dispatch({
+      type: 'rule/add',
+      payload: {
+        description: fields.desc,
+      },
+    });
+
+    message.success('添加成功');
+    this.setState({
+      modalVisible: false,
+    });
+  };
+
+  renderForm() {
+    let searchSize = 'large';
     const tProps = {
-      treeData,
+      treeData: this.state.treeData,
+      allowClear: true,
+      treeCheckStrictly: true,
+      size: searchSize,
       value: this.state.value,
       onChange: this.onTreeSelectChange,
       treeCheckable: true,
@@ -380,21 +306,14 @@ export default class TableList extends PureComponent {
 
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          {/* <Col md={2} sm={24} style={{'text-align': 'right'}}>
-            组织名称
-          </Col> */}
-          <span style={{ float: 'left', 'line-height': '32px' }}>组织名称：</span>
-          <Col md={10} sm={24}>
+        <Row className={styles.mainSearch} gutter={{ md: 8, lg: 24, xl: 48 }}>
+          <Col className={styles.treeSelect} md={10} sm={20}>
             <TreeSelect {...tProps} />
           </Col>
-          <Col md={8} sm={24}>
+          <Col className={styles.searchButton} md={2} sm={4}>
             <span className={styles.submitButtons}>
-              <Button type="primary" htmlType="submit">
+              <Button loading={!this.state.isLoadTreeData} size={searchSize} type="primary" htmlType="submit">
                 查询
-              </Button>
-              <Button style={{ marginLeft: 8 }} onClick={this.handleFormReset}>
-                重置
               </Button>
             </span>
           </Col>
@@ -403,16 +322,29 @@ export default class TableList extends PureComponent {
     );
   }
 
+  renderAddUserButtons () {
+    return (
+      <Fragment>
+        <Button icon="plus" type="primary"
+          onClick={() => this.handleModalVisible(true)}
+        >
+          新增
+        </Button>
+        <Upload {...uploadProps}>
+          <Button icon="upload" type="primary">批量导入用户信息</Button>
+        </Upload>
+        <Button icon="download" type="primary"
+          onClick={() => this.handleDownloadTemplate()}
+        >
+          execl 模板下载
+        </Button>
+      </Fragment>
+    );
+  }
+
   render() {
     const { rule: { data }, loading } = this.props;
     const { selectedRows, modalVisible } = this.state;
-
-    const menu = (
-      <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
-        <Menu.Item key="remove">删除</Menu.Item>
-        <Menu.Item key="approval">批量审批</Menu.Item>
-      </Menu>
-    );
 
     const parentMethods = {
       handleAdd: this.handleAdd,
@@ -420,39 +352,9 @@ export default class TableList extends PureComponent {
     };
 
     return (
-      <PageHeaderLayout title="查询表格">
-        <Card bordered={false}>
+      <PageHeaderLayout title="用户管理" content={this.renderForm()}>
+        <Card bordered={false}> 
           <div className={styles.tableList}>
-            <div className={styles.tableListForm}>{this.renderForm()}</div>
-            <div className={styles.tableListOperator}>
-              <Button icon="plus" type="primary" onClick={() => this.handleModalVisible(true)}>
-                新增
-              </Button>
-              <div className="">
-                <Upload {...uploadProps}>
-                  <Button type="primary">
-                    <Icon type="upload" /> 批量导入用户信息
-                  </Button>
-                </Upload>
-                <Button
-                  icon="download"
-                  type="primary"
-                  onClick={() => this.handleDownloadTemplate()}
-                >
-                  execl 模板下载
-                </Button>
-              </div>
-              {selectedRows.length > 0 && (
-                <span>
-                  <Button>批量操作</Button>
-                  <Dropdown overlay={menu}>
-                    <Button>
-                      更多操作 <Icon type="down" />
-                    </Button>
-                  </Dropdown>
-                </span>
-              )}
-            </div>
             <StandardTable
               selectedRows={selectedRows}
               loading={loading}
