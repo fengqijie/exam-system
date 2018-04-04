@@ -63,6 +63,8 @@ export default class TableList extends PureComponent {
       {key: 5, job: 5, remark: '一些备注'},
       {key: 6, job: 6, remark: '一些备注'},
     ],
+    treeData: [],
+    value: []
   };
 
   componentDidMount() {
@@ -72,87 +74,47 @@ export default class TableList extends PureComponent {
     });
   } 
 
-  handleTreeSelectChange = value => {
-    this.setState({ value });
-  };
-
-  handleSearch = e => {
-    e.preventDefault();
-    console.log(this.state.value);
-  };
-
-
-  renderForm() {
-    let searchSize = 'large';
-    const tProps = {
-      treeData: this.state.treeData,
-      allowClear: true,
-      treeCheckStrictly: true,
-      size: searchSize,
-      value: this.state.value,
-      onChange: this.handleTreeSelectChange,
-      treeCheckable: true,
-      showCheckedStrategy: TreeSelect.SHOW_ALL,
-      searchPlaceholder: 'Please select',
-    };
-
-    return (
-      <Form onSubmit={this.handleSearch} layout="inline">
-        <Row className={styles.mainSearch} gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col className={styles.treeSelect} md={10} sm={20}>
-            <TreeSelect {...tProps} />
-          </Col>
-          <Col className={styles.searchButton} md={2} sm={4}>
-            <span className={styles.submitButtons}>
-              <Button loading={!this.state.isLoadTreeData} size={searchSize} type="primary" htmlType="submit">
-                查询
-              </Button>
-            </span>
-          </Col>
-        </Row>
-      </Form>
-    );
-  }
-
-  columns = [{
-    title: '职位',
-    dataIndex: 'job',
-    width: '15%',
-    render: (text, record) => this.renderColumns(text, record, 'job'),
-  }, {
-    title: '备注',
-    dataIndex: 'remark',
-    width: '40%',
-    render: (text, record) => this.renderColumns(text, record, 'remark'),
-  }, {
-    title: '操作',
-    dataIndex: 'operation',
-    render: (text, record) => {
-      const { editable } = record;
-      return (
-        <div className="editable-row-operations">
-          {
-            editable
-            ?
-            <ButtonGroup>
-              <Button onClick={() => this.handleSave(record.key)}>保存</Button>
-              <Popconfirm title="确定取消?" cancelText="否" okText="是" onConfirm={() => this.handleCancel(record.key)}>
-                <Button>取消</Button>
-              </Popconfirm>
-            </ButtonGroup>
-            : 
-            <ButtonGroup>
-              <Button icon="plus" onClick={() => this.handleEdit(record.key)}>增加下一级</Button>
-              <Button icon="edit" onClick={() => this.handleEdit(record.key)}>修改</Button>
-              <Popconfirm title="Sure to delete?" onConfirm={() => this.onDelete(record.key)}>
-                <Button icon="delete" type="danger">删除</Button>
-              </Popconfirm>
-            </ButtonGroup>
-          }
-        </div>
-      );
-    },
-  }];
+  columns = [
+    {
+      title: '职位',
+      dataIndex: 'job',
+      width: '15%',
+      render: (text, record) => this.renderColumns(text, record, 'job'),
+    }, {
+      title: '备注',
+      dataIndex: 'remark',
+      width: '40%',
+      render: (text, record) => this.renderColumns(text, record, 'remark'),
+    }, {
+      title: '操作',
+      dataIndex: 'operation',
+      render: (text, record) => {
+        const { editable } = record;
+        return (
+          <div className="editable-row-operations">
+            {
+              editable
+              ?
+              <ButtonGroup>
+                <Button onClick={() => this.handleSave(record.key)}>保存</Button>
+                <Popconfirm title="确定取消?" cancelText="否" okText="是" onConfirm={() => this.handleCancel(record.key)}>
+                  <Button>取消</Button>
+                </Popconfirm>
+              </ButtonGroup>
+              : 
+              <ButtonGroup>
+                <Button icon="plus" onClick={() => this.handleEdit(record.key)}>增加下一级</Button>
+                <Button icon="edit" onClick={() => this.handleEdit(record.key)}>修改</Button>
+                <Popconfirm title="Sure to delete?" onConfirm={() => this.onDelete(record.key)}>
+                  <Button icon="delete" type="danger">删除</Button>
+                </Popconfirm>
+              </ButtonGroup>
+            }
+          </div>
+        );
+      },
+    }
+  ];
 
   cacheData = this.state.data.map(item => ({ ...item }));
 
@@ -210,23 +172,35 @@ export default class TableList extends PureComponent {
     }
   }
 
-  handleTreeSelectChange(value) {
-    console.log(value);
+  // about tree-select
+  handleTreeSelectSearch = e => {
+    e.preventDefault();
+    console.log(this.state.value);
+  };
+
+  // about tree-select
+  handleTreeSelectChange = value => {
+    this.setState({ value });
   }
 
-  render() {
+  // about tree-select
+  renderTreeSelect () {
     const tProps = {
-      treeData: [],
-      value: [],
+      treeData: this.state.treeData,
+      value: this.state.value,
       onChange: this.handleTreeSelectChange,
+      onSearch: this.handleTreeSelectSearch
     };
-    const mainSearch = (
+    return (
       <div style={{ textAlign: 'center' }}>
         <MainTreeSelect {...tProps}/>
       </div>
     );
+  }
+
+  render() {
     return (
-      <PageHeaderLayout title="角色管理" content={mainSearch}>
+      <PageHeaderLayout title="角色管理" content={this.renderTreeSelect()}>
         <Card bordered={false}>
           <Table bordered dataSource={this.state.data} columns={this.columns} />
         </Card>

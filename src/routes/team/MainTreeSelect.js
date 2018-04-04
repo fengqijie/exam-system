@@ -9,9 +9,9 @@ import {
     TreeSelect,
 } from 'antd';
 
-import styles from './DeleteModal.less';
+import styles from './MainTreeSelect.less';
 
-export default class DeleteModal extends PureComponent {
+export default class MainTreeSelect extends PureComponent {
     state = {
         isLoadTreeData: true,
         treeData: [],
@@ -26,6 +26,7 @@ export default class DeleteModal extends PureComponent {
 
     render() {
         const selectProps = { ...this.state, ...this.props };
+
         selectProps.treeData = [
             {
                 label: 'Node1',
@@ -83,7 +84,7 @@ export default class DeleteModal extends PureComponent {
             },
         ]
         return (
-            <Form onSubmit={() => { }} layout="inline">
+            <Form onSubmit={selectProps.onSearch} layout="inline">
                 <Row className={styles.mainSearch} gutter={{ md: 8, lg: 24, xl: 48 }}>
                     <Col className={styles.treeSelect} md={10} sm={20}>
                         <TreeSelect {...selectProps} />
