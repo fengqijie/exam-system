@@ -1,46 +1,21 @@
 import { Modal } from 'antd';
 
-class LocalizedModal extends React.Component {
-  state = { visible: true }
-  showModal = () => {
-    this.setState({
-      visible: true,
-    });
-  }
-  hideModal = () => {
-    this.setState({
-      visible: false,
-    });
-  }
+export default class DeleteModal extends React.Component {
   render() {
     const props = {
-      iconType: "exclamation-circle",
-      title: "Modal",
+      okType: 'danger',
+      title: this.props.ModalTitle || '请确认',
       visible: this.props.visible,
-      onOk: this.hideModal,
-      onCancel: this.hideModal,
-      title: '提示：',
-      okText: "确认",
-      cancelText: "取消",
-      destroyOnClose: true,
+      onOk: this.props.onOk,
+      onCancel: this.props.onCancel,
+      confirmLoading: this.props.confirmLoading,
     }
     return (
       <div>
-        <Modal {...props} >
-          <p>您确定要删除xxx吗？</p>
+        <Modal {...props}>
+          <p>{this.props.ModalText}</p>
         </Modal>
       </div>
     );
   }
 }
-
-function confirm() {
-  Modal.confirm({
-    title: 'Confirm',
-    content: 'Bla bla ...',
-    okText: '确认',
-    cancelText: '取消',
-  });
-}
-
-export default LocalizedModal;

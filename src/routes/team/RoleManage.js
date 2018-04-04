@@ -2,17 +2,12 @@ import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import moment from 'moment';
 import {
-  Row,
   Col,
   Card,
   Form,
-  Select,
   Icon,
-  Upload,
   Input,
-  Radio,
   Button,
-  Popconfirm,
   Dropdown,
   Modal,
   message,
@@ -26,24 +21,44 @@ const FormItem = Form.Item;
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import styles from './RoleManage.less';
 import MainTreeSelect from './MainTreeSelect';
-import RoleModal from './RoleModal';
+import DeleteModal from './DeleteModal';
 
-const CreateForm = Form.create()(props => {
-  const { modalProps, modalVisible, form, onOK, onCancel } = props;
+const FormModal = Form.create()(
+  class extends React.Component {
+    render() {
+      const { data, visible, onCancel, onCreate, form } = this.props;
+      const { getFieldDecorator } = form;
+      const targetData = data.filter(item => item.isCurrent)[0] || {};
+      const props = targetData.isEditing
+      ? { title: `修改职位：${targetData.job}`, okText: '修改' }
+      : { title: `为职位：${targetData.job} 增加下一级`, okText: '增加' }
 
-  return (
-    <Modal
-      title={modalProps.title}
-      visible={modalVisible}
-      okText={modalProps.okText}
-      cancelText={modalProps.cancelText}
-      onOk={onOK}
-      onCancel={onCancel}
-    >
-      <RoleModal />
-    </Modal>
-  );
-});
+      return (
+        <Modal
+          visible={visible}
+          title="提示"
+          okText="确定"
+          onCancel={onCancel}
+          onOk={onCreate}
+          {...props}
+        >
+          <Form layout="vertical">
+            <FormItem label={<span>职位</span>}>
+              {getFieldDecorator('job', {
+                rules: [{ required: true, message: '请输入职位', whitespace: true }],
+              })(<Input placeholder='请输入职位' />)}
+            </FormItem>
+            <FormItem label={<span>备注</span>}>
+              {getFieldDecorator('remark', {
+                rules: [{ required: false, message: '请输入备注', whitespace: true }],
+              })(<Input.TextArea placeholder='请输入备注' />)}
+            </FormItem>
+          </Form>
+        </Modal>
+      );
+    }
+  }
+);
 
 @connect(({ rule, loading }) => ({
   rule,
@@ -64,8 +79,10 @@ export default class TableList extends PureComponent {
     ],
     treeData: [],
     value: [],
-    visible: false,
-    modalProps: {}
+    visibleFormModal: false,
+    visibleDeleteModal: false,
+    deleteModalText: '',
+    confirmLoading: false,
   };
 
   componentDidMount() {
@@ -79,85 +96,51 @@ export default class TableList extends PureComponent {
     {
       title: '职位',
       dataIndex: 'job',
-      // width: '15%',
+      width: '15%',
     }, {
       title: '备注',
       dataIndex: 'remark',
-      // width: '40%',
+      width: '40%',
     }, {
       title: '操作',
       dataIndex: 'operation',
       render: (text, record) => {
         const { editable } = record;
         return (
-          <div className="editable-row-operations">
-            {
-              editable
-              ?
-              <ButtonGroup>
-                <Button onClick={() => this.handleSave(record.key)}>保存</Button>
-                <Popconfirm title="确定取消?" cancelText="否" okText="是" onConfirm={() => this.handleCancel(record.key)}>
-                  <Button>取消</Button>
-                </Popconfirm>
-              </ButtonGroup>
-              : 
-              <ButtonGroup>
-                <Button icon="plus" onClick={() => this.handleAdd(record.key)}>增加下一级</Button>
-                <Button icon="edit" onClick={() => this.handleEdit(record.key)}>修改</Button>
-                <Popconfirm title="Sure to delete?" onConfirm={() => this.handleDelete(record.key)}>
-                  <Button icon="delete" type="danger">删除</Button>
-                </Popconfirm>
-              </ButtonGroup>
-            }
-          </div>
+          <ButtonGroup>
+            <Button icon="plus" onClick={() => this.handleAdd(record.key)}>增加下一级</Button>
+            <Button icon="edit" onClick={() => this.handleEdit(record.key)}>修改</Button>
+            <Button icon="delete" onClick={() => this.handleDelete(record.key)} type="danger">删除</Button>
+          </ButtonGroup>
         );
       },
     }
   ];
 
   handleAdd = (key) => {
-    this.setState({ 
-      modalProps: {
-        title: "为当前职位创建下一级",
-        okText: "创建",
-        cancelText: '取消',
-        handleType: 'add',
-        data: this.state.data,
-        key: key
-      } 
-    });
-    this.showModal();
+    const newData = [...this.state.data];
+    newData.forEach(item => {
+      item.isCurrent = item.key === key;
+      item.isEditing = false;
+    })
+    this.setState({ data: newData, visibleFormModal: true });
   }
 
   handleDelete = (key) => {
-    const dataSource = [...this.state.data];
-    const filterData = dataSource.filter(item => item.key !== key);
-    this.setState({ dataSource: filterData });
+    const newData = [...this.state.data];
+    newData.forEach(item => item.isCurrent = item.key === key )
+    const filterData = newData.filter(item => item.isCurrent)[0];
+    let text = `即将删除职位：${filterData.job} 及其下属职位`;
+    this.setState({ visibleDeleteModal: true, deleteModalText: text });
   }
 
   handleEdit(key) {
-    this.setState({ modalProps: {
-      title: "修改",
-      okText: "确定",
-      cancelText: '取消',
-      handleType: 'edit',
-      data: this.state.data,
-      key: key
-    } });
-    this.showModal();
-    // const newData = [...this.state.data];
-    // const target = newData.filter(item => key === item.key)[0];
-  }
-  createModal() {
-
-  }
-  handleSave(key) {
     const newData = [...this.state.data];
-    const target = newData.filter(item => key === item.key)[0];
-    if (target) {
-      delete target.editable;
-      this.setState({ data: newData });
-    }
+    newData.forEach(item => {
+      item.isCurrent = item.key === key;
+      item.isEditing = true;
+    })
+    this.setState({ data: newData, visibleFormModal: true });
   }
 
   // about tree-select
@@ -187,40 +170,79 @@ export default class TableList extends PureComponent {
   }
 
   // modal
-  showModal = () => {
-    this.setState({ visible: true });
+  handleFormModalCancel = () => {
+    const form = this.formRef.props.form
+    form.resetFields();
+    this.setState({ visibleFormModal: false });
   }
-  handleCancel = () => {
-    this.setState({ visible: false });
-  }
-  handleCreate = () => {
-    const form = this.formRef.props.form;
+  handleFormModalCreate = () => {
+    const form = this.formRef.props.form
     form.validateFields((err, values) => {
-      if (err) {
-        return;
-      }
+      if (err) { return; }
 
-      console.log('Received values of form: ', values);
       form.resetFields();
-      this.setState({ visible: false });
+      this.setState({ visibleFormModal: false });
+      console.log('Received values of form: ', values);
+
+      this.handleData(values);
     });
   }
   saveFormRef = (formRef) => {
     this.formRef = formRef;
   }
 
+  handleData (values) {
+    const newData = [...this.state.data];
+    newData.forEach(item => {
+      if (item.isCurrent) {
+        if (item.isEditing) {
+          Object.assign(item, values);
+          message.success('修改成功！')
+        } else {
+          item.children = item.children || [];
+          item.children.push(values);
+          message.success('添加成功！')
+        }
+      }
+    });
+    this.setState({ data: newData });
+  }
+
+  handleDeleteModalCancel = () => {
+    this.setState({ visibleDeleteModal: false });
+  }
+  handleDeleteModalOk = () => {
+    const newData = [...this.state.data];
+    const filterData = newData.filter(item => item.isCurrent)[0];
+    console.log(filterData)
+    
+    this.setState({ confirmLoading: true });
+
+    setTimeout(() => {
+      message.success('删除成功');
+      this.setState({ visibleDeleteModal: false, confirmLoading: false });
+    }, 2000);
+  }
+
   render() {
-    const props = {
-      modalProps: this.state.modalProps,
-      modalVisible: this.state.visible,
-      onOK: this.handleCreate,
-      onCancel: this.handleCancel
-    }
     return (
       <PageHeaderLayout title="角色管理" content={this.renderTreeSelect()}>
         <Card bordered={false}>
           <Table bordered dataSource={this.state.data} columns={this.columns} />
-          <CreateForm {...props} />
+          <FormModal
+            wrappedComponentRef={this.saveFormRef}
+            visible={this.state.visibleFormModal}
+            onCancel={this.handleFormModalCancel}
+            onCreate={this.handleFormModalCreate}
+            data={this.state.data}
+          />
+          <DeleteModal 
+            visible={this.state.visibleDeleteModal}
+            onOk={this.handleDeleteModalOk}
+            onCancel={this.handleDeleteModalCancel}
+            confirmLoading={this.state.confirmLoading}
+            ModalText={this.state.deleteModalText}
+          />
         </Card>
       </PageHeaderLayout>
     );
