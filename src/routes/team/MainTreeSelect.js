@@ -20,7 +20,7 @@ export default class MainTreeSelect extends PureComponent {
         allowClear: true,
         treeCheckStrictly: true,
         treeCheckable: true,
-        showCheckedStrategy: TreeSelect.SHOW_ALL,
+        showCheckedStrategy: TreeSelect.SHOW_PARENT,
         searchPlaceholder: 'Please select',
     };
 
@@ -94,6 +94,8 @@ export default class MainTreeSelect extends PureComponent {
                             <Button
                                 loading={!selectProps.isLoadTreeData}
                                 size={selectProps.size}
+                                icon="search"
+                                disabled={false}
                                 type="primary"
                                 htmlType="submit">
                                 查询
